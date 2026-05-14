@@ -3,13 +3,13 @@
 AI-powered movie & TV discovery app built with React and Gemini API. Describe what you want to watch using mood, genre, language, or year — and get smart, personalized results.
 
 ## 🔗 Live Demo
-[Coming soon](#)
+https://ai-movie-finder.netlify.app
 
 ## 📖 About
 MovieFinder is a personal project built to solve a real problem — spending more time deciding what to watch than actually watching. Instead of browsing endlessly, just describe what you're in the mood for in natural language. The Gemini API interprets your input and fetches the most relevant movies and TV shows from TMDB.
 
 ## ✨ Features
-- 🤖 AI-powered search — type anything like "something dark and psychological from Korea" or "a feel-good comedy from the 90s" and get personalized results
+- 🤖 AI-powered search — type anything like "recently released thriller movies", "feel good movies", "rom-com movies", or "new releases" and get personalized results
 - 🔥 Trending section — browse what's popular today or this week, filtered by movies or TV shows
 - 🎬 Movies & TV Shows — browse both or filter by type
 - 🃏 Movie cards — poster, title, release year, and rating at a glance
@@ -41,24 +41,33 @@ MovieFinder is a personal project built to solve a real problem — spending mor
 
 1. Clone the repo
 
-   git clone https://github.com/sushmaa-dev/ai-movie-finder.git
-   cd ai-movie-finder
+```bash
+git clone https://github.com/sushmaa-dev/ai-movie-finder.git
+cd ai-movie-finder
+```
 
 2. Install dependencies
 
-   npm install
+```bash
+npm install
+```
 
 3. Create a `.env` file in the root and add your API keys
 
-    VITE_GEMINI_KEY=your_gemini_api_key
-    VITE_TMDB_TOKEN=your_tmdb_token
+```
+VITE_GEMINI_KEY=your_gemini_api_key
+VITE_TMDB_TOKEN=your_tmdb_token
+```
 
 4. Run the app
 
-   npm run dev
+```bash
+npm run dev
+```
 
 ## 📁 Project Structure
 
+```
 src/
 ├── components/
 │   ├── Footer.jsx
@@ -72,6 +81,7 @@ src/
 ├── App.jsx
 ├── index.css
 └── main.jsx
+```
 
 ## 🙏 Attribution
 This product uses the TMDB API but is not endorsed or certified by TMDB.
