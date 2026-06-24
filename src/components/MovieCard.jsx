@@ -1,10 +1,13 @@
+import { useNavigate } from 'react-router-dom';
+
 function MovieCard(props){
+  const navigate = useNavigate();
 
   const ratings = props.eachItem.vote_average.toFixed(1);
   const poster = "https://image.tmdb.org/t/p/w500" + props.eachItem.poster_path;
 
     return (
-        <div className="card" onClick={()=>{ props.onCardClick(props.eachItem)}}>
+       <div className="card" onClick={()=>{ navigate(`/${props.eachItem.media_type}/${props.eachItem.id}`)}}>
             <div className="card-poster">
               <img src={poster} alt="movie-poster"  />
               <div className="card-overlay"></div>

@@ -5,9 +5,6 @@ function SearchResults(props){
 
   const [searchActiveTab, setActiveTab] = useState(props.searchMediaType === 'tv' ? "TV Shows" : "Movies")
     
-
-
-
     return (
 
     <section className='trending'>
@@ -39,7 +36,7 @@ function SearchResults(props){
                  <MovieCard 
                     key={eachItem.id}
                     eachItem={eachItem}
-                    onCardClick = {props.onCardClick}
+                    
                     
                  />)
                 : 
@@ -48,7 +45,7 @@ function SearchResults(props){
                  <MovieCard 
                     key={eachItem.id}
                     eachItem={eachItem}
-                    onCardClick = {props.onCardClick}
+                  
                  />)
                 
                }

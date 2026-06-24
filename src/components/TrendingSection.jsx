@@ -44,7 +44,6 @@ function TrendingSection(props){
                  <MovieCard 
                     key={eachItem.id}
                     eachItem={eachItem}
-                    onCardClick = {props.onCardClick}
                  />
                )}
                   

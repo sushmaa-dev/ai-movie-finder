@@ -1,11 +1,15 @@
 import { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 
 function MovieDetail(props){
 
     const token = import.meta.env.VITE_TMDB_TOKEN
-    // console.log(props.selectedMovie);
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const mediaType = props.mediaType;
 
+    const [movieData, setMovieData] = useState(null);
     const [providerPlatform, setPlatform] = useState(null);
     const [trailerKey, setTrailerKey] = useState(null);
     const [recommendations, setRecommendations] = useState([]);
@@ -15,28 +19,19 @@ function MovieDetail(props){
 
     const [numberOfSeasons, setNumberOfSeasons] = useState(null);  
 
+useEffect(()=>{
+    setMovieData(null);
+    fetch(`https://api.themoviedb.org/3/${mediaType}/${id}`, 
+        {headers : { Authorization : "Bearer " + token}})
+    .then(res=> res.json())
+    .then(data => {
+        setMovieData(data);
+    })
+}, [id])
 
-    const backdropUrl = "https://image.tmdb.org/t/p/original" + props.selectedMovie.backdrop_path;
-    const moviePoster = "https://image.tmdb.org/t/p/w500" + props.selectedMovie.poster_path;
-
-    const  currentDate = new Date(props.selectedMovie.media_type === 'movie' ? props.selectedMovie.release_date : props.selectedMovie.first_air_date);
-    const finalDate = currentDate.toLocaleDateString('en-US');
-   const ratingDetail= props.selectedMovie.vote_average.toFixed(1);
-
-
-   const genresList = props.selectedMovie.media_type === 'movie' ? props.movieGenres : props.tvGenres;
-   const getGenre = props.selectedMovie.genre_ids.map(id => {
-        const matchID = genresList.find(g => g.id === id) 
-        return matchID ? matchID.name : null
-
-   }).filter(Boolean);
-
-   
-   const mediaType = props.selectedMovie.media_type === 'movie' ? 'movie' : 'tv';
-   const movieID = props.selectedMovie.id;
     
    useEffect(()=>{
-        fetch(`https://api.themoviedb.org/3/${mediaType}/${movieID}/watch/providers`, 
+        fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/watch/providers`, 
             {headers : { Authorization : "Bearer " + token}})  
         .then(res=>res.json())
         .then(data => {
@@ -46,10 +41,10 @@ function MovieDetail(props){
             // console.log(provider);
         })
 
-   }, [movieID])
+   }, [id])
 
    useEffect(()=>{
-    fetch(`https://api.themoviedb.org/3/${mediaType}/${movieID}/videos`, 
+    fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/videos`, 
         {headers : { Authorization : "Bearer " + token}})
     .then(res=> res.json())
     .then(data => {
@@ -57,27 +52,42 @@ function MovieDetail(props){
         
         setTrailerKey(matchedVideo ? matchedVideo.key : null);
     })
-   }, [movieID])
+   }, [id])
 
    useEffect(()=>{
-    fetch(`https://api.themoviedb.org/3/${mediaType}/${movieID}/recommendations`, 
+    fetch(`https://api.themoviedb.org/3/${mediaType}/${id}/recommendations`, 
         {headers : { Authorization : "Bearer " + token}})
     .then(res=> res.json())
     .then(data => {
         setRecommendations(data.results || []);
     })
-}, [movieID])
+}, [id])
 
   useEffect(()=>{
     if(mediaType === 'tv'){
-        fetch(`https://api.themoviedb.org/3/tv/${movieID}`, 
+        fetch(`https://api.themoviedb.org/3/tv/${id}`, 
             {headers : { Authorization : "Bearer " + token}})
         .then(res=> res.json())
         .then(data => {
             setNumberOfSeasons(data.number_of_seasons);
         })
     }
-}, [movieID])
+}, [id])
+
+if(!movieData) return <div style={{color: 'white', padding: '40px'}}>Loading...</div>;
+
+    const backdropUrl = "https://image.tmdb.org/t/p/original" + movieData.backdrop_path;
+    const moviePoster = "https://image.tmdb.org/t/p/w500" + movieData.poster_path;
+
+    const currentDate = new Date(mediaType === 'movie' ? movieData.release_date : movieData.first_air_date);
+    const finalDate = currentDate.toLocaleDateString('en-US');
+    const ratingDetail = movieData.vote_average ? movieData.vote_average.toFixed(1) : '0.0';
+
+    const genresList = mediaType === 'movie' ? props.movieGenres : props.tvGenres;
+    const getGenre = (movieData.genres || []).map(g => g.name);
+
+   
+
 
    const youtubeTrailerUrl = trailerKey ? `https://www.youtube.com/watch?v=${trailerKey}` : null;
 
@@ -103,7 +113,7 @@ function MovieDetail(props){
              <div className="backdrop-overlay"></div>
              <div className="backdrop-content">
                 <div className="back-btn">
-                         <button onClick={()=>{ props.setSelectedMovie(null)}}>← Back</button>
+                         <button onClick={()=>{ navigate(-1)}}>← Back</button>
                 </div>
                 <div className="movieDetail-card"> 
                     <div className="movie-poster">
@@ -111,10 +121,10 @@ function MovieDetail(props){
                     </div>
                     <div className="movie-info">
                     <div className="movie-title-section">
-      <h1>{props.selectedMovie.media_type === 'movie' ? props.selectedMovie.title : props.selectedMovie.name}</h1>
+     <h1>{mediaType === 'movie' ? movieData.title : movieData.name}</h1>
       <div className="movieInfo-meta">
-           <span className="detail-badge detail-badge-type">{props.selectedMovie.media_type === 'movie' ? 'Movie' : 'TV Show'}</span>
-           <span className="detail-badge detail-badge-year">{props.selectedMovie.media_type === 'movie' ? props.selectedMovie.release_date.slice(0,4) : props.selectedMovie.first_air_date.slice(0,4)}</span>
+           <span className="detail-badge detail-badge-type">{mediaType === 'movie' ? 'Movie' : 'TV Show'}</span>
+           <span className="detail-badge detail-badge-year">{mediaType === 'movie' ? movieData.release_date?.slice(0,4) : movieData.first_air_date?.slice(0,4)}</span>
 {mediaType === 'tv' && numberOfSeasons && (
     <span className="detail-badge detail-badge-seasons">{numberOfSeasons} {numberOfSeasons === 1 ? 'Season' : 'Seasons'}</span>
 )}
@@ -124,7 +134,7 @@ function MovieDetail(props){
       </div>
 </div>
                           <div className="movie-rating">
-{props.selectedMovie.vote_average > 0 && (
+{movieData.vote_average > 0 && (
       <>
       <span className="star">★</span>
       <span className="rating-value">{ratingDetail}</span>
@@ -136,7 +146,7 @@ function MovieDetail(props){
                             }
                             <div className="movie-overview">
                                  <h3>Overview</h3>
-                                 <p>{props.selectedMovie.overview}</p>
+                                 <p>{movieData.overview}</p>
                             </div>
                             {providerPlatform && providerPlatform.flatrate && (
                                 <div className="movie-stream">
@@ -175,7 +185,7 @@ function MovieDetail(props){
             {showLeftArrow && <button className="rec-arrow rec-arrow-left" onClick={scrollLeft}>‹</button>}
     <div className="recommendations-grid" ref={recGridRef} onScroll={handleScroll}>
                 {recommendations.filter(r => r.poster_path && r.vote_average > 0).slice(0, 20).map(rec => (
-                    <div key={rec.id} className="rec-card" onClick={() => props.onCardClick({...rec, media_type: mediaType})}>
+                  <div key={rec.id} className="rec-card" onClick={() => navigate(`/${rec.media_type || mediaType}/${rec.id}`)}>
                     <img src={`https://image.tmdb.org/t/p/w500${rec.backdrop_path || rec.poster_path}`} alt={rec.title || rec.name} />
                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px'}}>
     <p style={{margin: 0}}>{rec.title || rec.name}</p>

@@ -28,9 +28,6 @@ function App() {
    // state which stores user's input
    const [searchQuery, setSearchQuery] = useState('');
 
-   // state to store the movie data, when on particular movieCard is clicked
-   const [selectedMovie, setSelectedMovie] = useState(null);
-
    // state to store the page number fr SearchResults
     const [pageNum, setPageNum]= useState(1);
   
@@ -80,13 +77,6 @@ function App() {
       })
 }, [])
 
-
-   function handleCardClick(movie){
-       setSelectedMovie(movie);
-       setGeminiErrorMessage('');
-       window.scrollTo(0,0);
-
-   } 
 
    function handleLoadMore(){
 
@@ -382,52 +372,53 @@ return match ? {...match, media_type: 'tv'} : null;
      {/* nav bar  */}
      <Navbar 
       setIsSearching={setIsSearching}
-      setSelectedMovie = {setSelectedMovie}
       setGeminiErrorMessage={setGeminiErrorMessage}
      />
 
-    
-{ !selectedMovie &&  <Hero onSearch={handleSearch}/> }  
-
-{geminiErrorMessage && <p className='gemini-error'>{geminiErrorMessage}</p>}
-
-{ selectedMovie ? 
-
-         < MovieDetail 
-            selectedMovie = {selectedMovie}
-            setSelectedMovie = {setSelectedMovie}
-            movieGenres={movieGenres}
-            tvGenres = {tvGenres}
-            onCardClick = {handleCardClick}
-         /> 
-
-         : isSearching ? 
-      
-   < SearchResults 
-      key = {searchQuery}
-      searchMovieRes = {searchMovieRes}
-      searchTvRes = {searchTvRes}
-      searchQuery = {searchQuery}
-      onCardClick = {handleCardClick}
-      onLoadMore = {handleLoadMore}
-      isDiscover = {isDiscover}
-      isAiTitles = {aiTitlesList.length > 0}
-      aiTitlesExhausted = {aiTitlesOffset >= aiTitlesList.length}
-       discoverExhausted = {discoverExhausted}
-       searchMediaType = {searchMediaType}
-   />
-   : 
-   
-   <TrendingSection 
-      trendingAll = {movies}
-      trendingPeriod = {trendingPeriod}
-      setTrendingPeriod = {setTrendingPeriod}
-      trendingType = {trendingType}
-      setTrendingType = {setTrendingType}
-      onCardClick = {handleCardClick}
-   />
-  
-   }
+<Routes>
+  <Route path="/" element={
+    <>
+      <Hero onSearch={handleSearch}/>
+      {geminiErrorMessage && <p className='gemini-error'>{geminiErrorMessage}</p>}
+      {isSearching ? 
+        <SearchResults 
+          key={searchQuery}
+          searchMovieRes={searchMovieRes}
+          searchTvRes={searchTvRes}
+          searchQuery={searchQuery}
+          onLoadMore={handleLoadMore}
+          isDiscover={isDiscover}
+          isAiTitles={aiTitlesList.length > 0}
+          aiTitlesExhausted={aiTitlesOffset >= aiTitlesList.length}
+          discoverExhausted={discoverExhausted}
+          searchMediaType={searchMediaType}
+        />
+        :
+        <TrendingSection 
+          trendingAll={movies}
+          trendingPeriod={trendingPeriod}
+          setTrendingPeriod={setTrendingPeriod}
+          trendingType={trendingType}
+          setTrendingType={setTrendingType}
+        />
+      }
+    </>
+  }/>
+  <Route path="/movie/:id" element={
+    <MovieDetail 
+      movieGenres={movieGenres}
+      tvGenres={tvGenres}
+      mediaType="movie"
+    />
+  }/>
+  <Route path="/tv/:id" element={
+    <MovieDetail 
+      movieGenres={movieGenres}
+      tvGenres={tvGenres}
+      mediaType="tv"
+    />
+  }/>
+</Routes>
 
   {/* footer  */}
    <Footer />
