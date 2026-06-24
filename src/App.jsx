@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import TrendingSection from './components/TrendingSection';
@@ -397,6 +398,7 @@ return match ? {...match, media_type: 'tv'} : null;
             setSelectedMovie = {setSelectedMovie}
             movieGenres={movieGenres}
             tvGenres = {tvGenres}
+            onCardClick = {handleCardClick}
          /> 
 
          : isSearching ? 

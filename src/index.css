@@ -432,9 +432,38 @@ h2{
 .movieInfo-meta{
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+.detail-badge {
+    background: rgba(255, 255, 255, 0.06);
     color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+.detail-badge-year {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+}
+
+.detail-badge-type {
+    background: rgba(96, 165, 250, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+}
+.detail-badge-seasons {
+    background: rgba(96, 165, 250, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    font-weight: 600;
 }
 .movie-rating{
     display: flex;
@@ -471,6 +500,25 @@ h3{
     line-height: 1.7;
     font-size: 15px;
 }
+.stream-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.stream-accent {
+    width: 5px;
+    height: 23px;
+    background: #60a5fa;
+    border-radius: 2px;
+}
+
+.stream-heading h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #e2e8f0;
+}
 
 .platform{
     display: flex;
@@ -493,6 +541,104 @@ h3{
   padding: 12px;
 }
 
+.recommendations {
+    padding: 50px 40px 120px;
+    background: #111111;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.recommendations h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 28px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    padding-left: 20px;
+}
+
+.recommendations-grid {
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    padding-left: 12px;
+    padding-top: 12px;
+}
+
+.recommendations-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.rec-card {
+    min-width: 260px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.rec-card:hover {
+    transform: scale(1.05);
+}
+
+.rec-card img {
+    width: 260px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.rec-card p {
+    color: white;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    text-align: left;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.rec-card span {
+    color: #fbbf24;
+    font-size: 0.75rem;
+    display: block;
+    text-align: left;
+    margin-top: 4px;
+}
+.recommendations-wrapper {
+    position: relative;
+}
+
+.rec-arrow {
+    position: absolute;
+    top: 80px;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.rec-arrow:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.rec-arrow-left {
+    left: -20px;
+}
+
+.rec-arrow-right {
+    right: -20px;
+}
 
 
 @media(max-width:768px){
@@ -526,6 +672,16 @@ h3{
     }
     .movie-title-section h1 {
         font-size: 24px;
+    }
+    .recommendations {
+        padding: 30px 24px;
+    }
+    .rec-card {
+        min-width: 180px;
+    }
+    .rec-card img {
+        width: 180px;
+        height: 107px;
     }
 
 } 
@@ -561,6 +717,19 @@ h3{
     }
     .footer-meta{
         gap: 10px;
+    }
+    .recommendations {
+        padding: 24px 20px;
+    }
+    .rec-card {
+        min-width: 140px;
+    }
+    .rec-card img {
+        width: 140px;
+        height: 83px;
+    }
+    .rec-card p {
+        font-size: 0.7rem;
     }
 }
 
