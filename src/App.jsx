@@ -51,6 +51,12 @@ function App() {
 
    const [searchMediaType, setSearchMediaType] = useState('all');
 
+   // states for popular section
+   const [popularMovies, setPopularMovies] = useState([]);
+   const [popularTv, setPopularTv] = useState([]);
+   const [onTv, setOnTv] = useState([]);
+   const [inTheatres, setInTheatres] = useState([]);
+
 
    const period = trendingPeriod === 'Today' ? 'day' : 'week'
 
@@ -77,6 +83,21 @@ function App() {
       })
 }, [])
 
+   useEffect(()=>{
+    Promise.all([
+        fetch('https://api.themoviedb.org/3/movie/popular', {headers: {Authorization: "Bearer " + token}}),
+        fetch('https://api.themoviedb.org/3/tv/popular', {headers: {Authorization: "Bearer " + token}}),
+        fetch('https://api.themoviedb.org/3/tv/on_the_air', {headers: {Authorization: "Bearer " + token}}),
+        fetch('https://api.themoviedb.org/3/movie/now_playing?region=US', {headers: {Authorization: "Bearer " + token}})
+    ])
+    .then(([movRes, tvRes, onTvRes, theatreRes]) => Promise.all([movRes.json(), tvRes.json(), onTvRes.json(), theatreRes.json()]))
+    .then(([movData, tvData, onTvData, theatreData]) => {
+        setPopularMovies(movData.results.filter(m => m.poster_path).map(m => ({...m, media_type: 'movie'})));
+        setPopularTv(tvData.results.filter(t => t.poster_path).map(t => ({...t, media_type: 'tv'})));
+        setOnTv(onTvData.results.filter(t => t.poster_path).map(t => ({...t, media_type: 'tv'})));
+        setInTheatres(theatreData.results.filter(m => m.poster_path).map(m => ({...m, media_type: 'movie'})));
+    })
+}, [])
 
    function handleLoadMore(){
 
@@ -233,10 +254,15 @@ return match ? {...match, media_type: 'tv'} : null;
 
          const rawText = data.candidates[0].content.parts[0].text
          const geminiResult =    JSON.parse(rawText)
+         console.log(geminiResult)
         
 //  matching genre from geminiresult to movigenre array we fetched from TMDB and attaching id to the geminiresults.
-         const matchedMovieGenre = geminiResult.genre ? movieGenres.find(g=> g.name === geminiResult.genre ) : null
-         geminiResult.genreId=  matchedMovieGenre ? matchedMovieGenre.id : null
+        const genreNames = geminiResult.genre ? geminiResult.genre.split(',').map(g => g.trim()) : [];
+const matchedGenreIds = genreNames.map(name => {
+    const match = movieGenres.find(g => g.name === name);
+    return match ? match.id : null;
+}).filter(Boolean);
+geminiResult.genreId = matchedGenreIds.length > 0 ? matchedGenreIds.join(',') : null;
            
 
  //  matching genre from geminiresult to tvGenre array we fetched from TMDB and attaching id to the geminiresults.           
@@ -400,6 +426,10 @@ return match ? {...match, media_type: 'tv'} : null;
           setTrendingPeriod={setTrendingPeriod}
           trendingType={trendingType}
           setTrendingType={setTrendingType}
+          popularMovies={popularMovies}
+          popularTv={popularTv}
+          onTv={onTv}
+          inTheatres={inTheatres}
         />
       }
     </>

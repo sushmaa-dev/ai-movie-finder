@@ -222,7 +222,7 @@ h1 span{
 }
 
 .trending{
-    padding: 0 36px 80px;
+    padding: 20px 36px 80px;
     max-width: 1300px;
     width: 100%;
     margin: 0 auto;
@@ -237,14 +237,28 @@ h1 span{
     margin-bottom: 16px;
     flex-wrap: wrap;
 }
-
-h2{
-    font-size: 20px;
-    letter-spacing: -0.3px;
-  
+.main-section-tabs {
+    display: flex;
+    gap: 10px;
 }
 
+.main-section-tab {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+}
 
+.main-section-tab.active {
+    background: #60a5fa;
+    color: #000;
+    font-weight: 700;
+}
 
 .period-tabs{
     display: flex;
@@ -273,6 +287,7 @@ h2{
     display: flex;
     gap: 6px;
     margin-bottom: 24px;
+    margin-top: 30px;
      
 }
 .type-tab{
@@ -296,15 +311,15 @@ h2{
 
 .card-grid{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 28px;
 }
 
 .card{
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background-color: #1a1a1a;
-    overflow: hidden;
+    border: none;
+    background-color: transparent;
+    overflow: visible;
     cursor: pointer;
 }
 
@@ -313,7 +328,9 @@ h2{
     position: relative;
     aspect-ratio: 2/3;
     overflow: hidden;
-    background: #111
+    background: #111;
+    border-radius: 14px;
+    border: 1.2px solid rgba(255, 255, 255, 0.08);
 }
 
 .card-poster img{
@@ -345,15 +362,22 @@ h2{
 
 .card-info{
     position: absolute;
-    left: 10px;
-    bottom: 10px;
-    right: 10px;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
 }
 .card-title{
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 600;
-    margin-bottom: 3px;
-    
+    margin-top: 12px;
+    margin-bottom: 14px;
+    color: white;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 4px;
 }
 .card-meta{
     display: flex;
@@ -368,7 +392,8 @@ h2{
 
 .card-rating{
     color: #fbbf24;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 15px;
 }
 
 /* Next page - MovieDetail styles */

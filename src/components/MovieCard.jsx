@@ -13,14 +13,10 @@ function MovieCard(props){
               <div className="card-overlay"></div>
               <span className="movie-badge">{props.eachItem.media_type }</span>
               <div className="card-info">
-                  <div className="card-title">{ props.eachItem.media_type === 'movie' ? props.eachItem.title : props.eachItem.name}</div>
-                  <div className="card-meta">
-                      <span className="card-year">{ props.eachItem.media_type === 'movie' ?  props.eachItem.release_date.slice(0,4) :  props.eachItem.first_air_date.slice(0,4)}</span>
-                      {props.eachItem.vote_average > 0 && <span className="card-rating">★ {ratings}</span>}
-                  </div>
-             
-                </div>
+                    {props.eachItem.vote_average > 0 && <span className="card-rating">{ratings}</span>}
+             </div>
             </div>
+        <div className="card-title">{ props.eachItem.media_type === 'movie' ? props.eachItem.title : props.eachItem.name}</div>
         </div>
     );
 }
