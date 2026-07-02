@@ -3,8 +3,7 @@ import MovieCard from "./MovieCard";
 
 function TrendingSection(props){
 
-    const [activeSection, setActiveSection] = useState('trending');
-    const [popularTab, setPopularTab] = useState('streaming');
+    
 
   const filteredResults = props.trendingAll.filter((eachItem) => {
                 if(props.trendingType === 'All') return true;
@@ -15,18 +14,18 @@ function TrendingSection(props){
     const streamingResults = [...props.popularMovies, ...props.popularTv]
     .sort(() => Math.random() - 0.5);
 
-  const popularResults = popularTab === 'streaming' ? streamingResults
-    : popularTab === 'ontv' ? props.onTv
+  const popularResults = props.popularTab === 'streaming' ? streamingResults
+    : props.popularTab === 'ontv' ? props.onTv
     : props.inTheatres;
 
     return (
     <section className='trending'>
         <div className='trending-header'>
             <div className='main-section-tabs'>
-                <button className={activeSection === 'trending' ? 'main-section-tab active' : 'main-section-tab'} onClick={()=> setActiveSection('trending')}>Trending</button>
-                <button className={activeSection === 'popular' ? 'main-section-tab active' : 'main-section-tab'} onClick={()=> setActiveSection('popular')}>Popular</button>
+                <button className={props.activeSection === 'trending' ? 'main-section-tab active' : 'main-section-tab'} onClick={()=> props.setActiveSection('trending')}>Trending</button>
+                <button className={props.activeSection === 'popular' ? 'main-section-tab active' : 'main-section-tab'} onClick={()=> props.setActiveSection('popular')}>Popular</button>
             </div>
-          {activeSection === 'trending' && (
+          {props.activeSection === 'trending' && (
             <div className='period-tabs'>
                 <button 
                 className= {props.trendingPeriod === 'Today' ? 'period-tab active' : 'period-tab' }
@@ -38,7 +37,7 @@ function TrendingSection(props){
             </div>
           )}
         </div>
-  {activeSection === 'trending' ? (
+  {props.activeSection === 'trending' ? (
     <>   
         <div className='type-tabs'>
              <button className= {props.trendingType === 'All' ? 'type-tab active' : 'type-tab'}
@@ -61,12 +60,12 @@ function TrendingSection(props){
   ) : (
     <>
     <div className='type-tabs'>
-              <button className={popularTab === 'streaming' ? 'type-tab active' : 'type-tab'}
-                onClick={()=> setPopularTab('streaming')}>Streaming</button>
-              <button className={popularTab === 'ontv' ? 'type-tab active' : 'type-tab'}
-                onClick={()=> setPopularTab('ontv')}>On TV</button>
-              <button className={popularTab === 'theatres' ? 'type-tab active' : 'type-tab'}
-                onClick={()=> setPopularTab('theatres')}>In Theatres</button>
+                <button className={props.popularTab === 'streaming' ? 'type-tab active' : 'type-tab'}
+                   onClick={()=> props.setPopularTab('streaming')}>Streaming</button>
+               <button className={props.popularTab === 'ontv' ? 'type-tab active' : 'type-tab'}
+                   onClick={()=> props.setPopularTab('ontv')}>On TV</button>
+               <button className={props.popularTab === 'theatres' ? 'type-tab active' : 'type-tab'}
+                   onClick={()=> props.setPopularTab('theatres')}>In Theatres</button>
             </div>
             <div className='card-grid'>
               {popularResults.map((eachItem) =>

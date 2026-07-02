@@ -57,6 +57,12 @@ function App() {
    const [onTv, setOnTv] = useState([]);
    const [inTheatres, setInTheatres] = useState([]);
 
+   // state for watch providers list, used for platform-based search.
+   const [watchProvidersList, setWatchProvidersList] = useState([]);
+
+   // states for trending/popular section tabs
+   const [activeSection, setActiveSection] = useState('trending');
+   const [popularTab, setPopularTab] = useState('streaming');
 
    const period = trendingPeriod === 'Today' ? 'day' : 'week'
 
@@ -83,10 +89,21 @@ function App() {
       })
 }, [])
 
+// fetch watch providers list (used for platform-based search, e.g. "movies on Netflix")
+   useEffect(()=>{
+    fetch('https://api.themoviedb.org/3/watch/providers/movie?watch_region=US', 
+        {headers: { Authorization: "Bearer " + token }})
+    .then(res => res.json())
+    .then(data => {
+        setWatchProvidersList(data.results);
+        
+    })
+}, [])
+
    useEffect(()=>{
     Promise.all([
-        fetch('https://api.themoviedb.org/3/movie/popular', {headers: {Authorization: "Bearer " + token}}),
-        fetch('https://api.themoviedb.org/3/tv/popular', {headers: {Authorization: "Bearer " + token}}),
+        fetch('https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&with_watch_monetization_types=flatrate&watch_region=US', {headers: {Authorization: "Bearer " + token}}),
+        fetch('https://api.themoviedb.org/3/discover/tv?sort_by=popularity.desc&with_watch_monetization_types=flatrate&watch_region=US', {headers: {Authorization: "Bearer " + token}}),
         fetch('https://api.themoviedb.org/3/tv/on_the_air', {headers: {Authorization: "Bearer " + token}}),
         fetch('https://api.themoviedb.org/3/movie/now_playing?region=US', {headers: {Authorization: "Bearer " + token}})
     ])
@@ -140,12 +157,18 @@ return match ? {...match, media_type: 'tv'} : null;
          ) : [];
          Promise.all([Promise.all(moviePromises), Promise.all(tvPromises)])
          .then(([movieResults, tvResults]) => {
-            const validMovies = movieResults.filter(m => m !== null);
-            const validTv = tvResults.filter(t => t !== null);
-            setSearchMovieRes((prev) => [...prev, ...validMovies]);
-            setSearchTvRes((prev) => [...prev, ...validTv]);
-            setAiTitlesOffset(aiTitlesOffset + 10);
-         })
+               const validMovies = movieResults.filter(m => m !== null);
+               const validTv = tvResults.filter(t => t !== null);
+               setSearchMovieRes((prev) => {
+                   const combined = [...prev, ...validMovies];
+                   return combined.filter((item, index) => combined.findIndex(i => i.id === item.id) === index);
+               });
+               setSearchTvRes((prev) => {
+                   const combined = [...prev, ...validTv];
+                   return combined.filter((item, index) => combined.findIndex(i => i.id === item.id) === index);
+               });
+               setAiTitlesOffset(aiTitlesOffset + 10);
+          })
 
       }else{
          // existing discover path
@@ -159,19 +182,25 @@ return match ? {...match, media_type: 'tv'} : null;
          .then(([movieRes, tvRes]) => Promise.all([movieRes.json(), tvRes.json()]))
          .then(([movieData, tvData]) => {
             const moviesWithMediaType = movieData.results
-               .filter(movie => movie.poster_path && movie.vote_average > 0 && movie.release_date)
-               .map(movie => {
-                  return {...movie, media_type: 'movie'}
-               })
+                .filter(movie => movie.poster_path && movie.vote_average > 0 && movie.release_date)
+                .map(movie => {
+                    return {...movie, media_type: 'movie'}
+                })
             const tvWithMediaType = tvData.results
-               .filter(tv => tv.poster_path && tv.vote_average > 0 && tv.first_air_date)
-               .map(tv => {
-                  return {...tv, media_type: 'tv'}
-               })
-            setSearchMovieRes((prev) => [...prev, ...moviesWithMediaType]);
-            setSearchTvRes((prev) => [...prev, ...tvWithMediaType]);
+                .filter(tv => tv.poster_path && tv.vote_average > 0 && tv.first_air_date)
+                .map(tv => {
+                    return {...tv, media_type: 'tv'}
+                })
+            setSearchMovieRes((prev) => {
+                const combined = [...prev, ...moviesWithMediaType];
+                return combined.filter((item, index) => combined.findIndex(i => i.id === item.id) === index);
+            });
+            setSearchTvRes((prev) => {
+                const combined = [...prev, ...tvWithMediaType];
+                return combined.filter((item, index) => combined.findIndex(i => i.id === item.id) === index);
+            });
             if(movieData.results.length === 0 && tvData.results.length === 0){
-               setDiscoverExhausted(true);
+                setDiscoverExhausted(true);
             }
          })
       }
@@ -207,7 +236,8 @@ return match ? {...match, media_type: 'tv'} : null;
                   - If user says "movies like X" or "similar to X" → ALWAYS use PATH 2
                   - If user describes a vibe, theme, or concept that cannot be mapped to a genre → ALWAYS use PATH 2
                   - If the input contains a recognizable genre from this list: Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Family, Fantasy, History, Horror, Music, Mystery, Romance, Science Fiction, Thriller, War, Western → ALWAYS use PATH 1 discover, even if there are descriptive words or adjectives around it
-                  
+                  - If user mentions a streaming platform (e.g. "on Netflix", "Prime Video movies") → ALWAYS use PATH 1 discover with the platform field set
+
                   PATH 1 - If the input is a GENERIC query where you can extract clear structured params like genre, year, language, sort order, rating (e.g. "thriller movies 2026", "top rated korean shows", "popular horror", "new releases", "recently released movies"):
                   Return:
                   {
@@ -220,6 +250,7 @@ return match ? {...match, media_type: 'tv'} : null;
                     "vote_average_gte": "8 if user mentions top rated or highly rated, otherwise null",
                     "with_original_language": "language code like hi for hindi, ko for korean, kn for kannada, ta for tamil, te for telugu, es for spanish, fr for french, ja for japanese, otherwise null",
                     "sort_by": "popularity.desc for popular, vote_average.desc for top rated, release_date.desc for newest or recent or new or latest, otherwise popularity.desc",
+                    "platform": "If user mentions a specific streaming platform, return the EXACT TMDB provider name: Netflix, Prime Video, Disney Plus, Hulu, HBO Max, Apple TV, Peacock, Paramount Plus. For any mention of Apple TV or Apple TV Plus, always return 'Apple TV'. Otherwise null.",
                     "titles": null
                   }
                   
@@ -254,7 +285,7 @@ return match ? {...match, media_type: 'tv'} : null;
 
          const rawText = data.candidates[0].content.parts[0].text
          const geminiResult =    JSON.parse(rawText)
-         console.log(geminiResult)
+         // console.log(geminiResult)
         
 //  matching genre from geminiresult to movigenre array we fetched from TMDB and attaching id to the geminiresults.
         const genreNames = geminiResult.genre ? geminiResult.genre.split(',').map(g => g.trim()) : [];
@@ -332,6 +363,20 @@ return match ? {...match, media_type: 'tv'} : null;
                if(geminiResult.vote_average_gte) params.append('vote_average.gte', geminiResult.vote_average_gte);
                if(geminiResult.with_original_language) params.append('with_original_language', geminiResult.with_original_language);
                if(geminiResult.sort_by) params.append('sort_by', geminiResult.sort_by)
+            
+               // match platform name to provider ID
+               if(geminiResult.platform){
+                   const matchedProvider = watchProvidersList.find(p => 
+                       p.provider_name.toLowerCase() === geminiResult.platform.toLowerCase()
+                   ) || watchProvidersList.find(p => 
+                       p.provider_name.toLowerCase().includes(geminiResult.platform.toLowerCase())
+                   );
+                   if(matchedProvider){
+                       params.append('with_watch_providers', matchedProvider.provider_id);
+                       params.append('watch_region', 'US');
+                   }
+               }
+               
                if(geminiResult.primary_release_year) params.append('primary_release_year', geminiResult.primary_release_year);
                if(geminiResult.sort_by === 'release_date.desc') {
                   params.append('release_date.lte', today);
@@ -430,6 +475,10 @@ return match ? {...match, media_type: 'tv'} : null;
           popularTv={popularTv}
           onTv={onTv}
           inTheatres={inTheatres}
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          popularTab={popularTab}
+          setPopularTab={setPopularTab}
         />
       }
     </>
